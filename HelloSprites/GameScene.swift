@@ -10,6 +10,8 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     let player = SKSpriteNode(imageNamed: "player")
+    let scoreLabel = SKLabelNode(text: "Score: 0")
+    var monsterKilled = 0
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
@@ -20,6 +22,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         backgroundColor = SKColor.whiteColor()
         player.position = CGPoint(x: size.width * 0.1, y: size.height * 0.5)
         addChild(player)
+        
+        scoreLabel.position = CGPoint(x: scoreLabel.frame.width/2, y: size.height - scoreLabel.frame.height)
+        scoreLabel.fontColor = UIColor.blackColor()
+        addChild(scoreLabel)
+        
+        let backgroundMusic = SKAudioNode(fileNamed: "background-music-aac.caf")
+        backgroundMusic.autoplayLooped = true
+        addChild(backgroundMusic)
+        
+        
         
         runAction(SKAction.repeatActionForever(
         SKAction.sequence([
@@ -68,6 +80,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let actionMoveDone = SKAction.removeFromParent()
         projectile.runAction(SKAction.sequence([actionMove, actionMoveDone]))
         
+    }
+    
+    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        runAction(SKAction.playSoundFileNamed("pew-pew-lei.caf", waitForCompletion: false))
     }
    
     override func update(currentTime: CFTimeInterval) {
@@ -118,6 +134,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if ((firstBody.categoryBitMask & PhysicsCategory.Monster != 0) &&
             (secondBody.categoryBitMask & PhysicsCategory.Projectile != 0)) {
             projectileDidCollideWithMonster(firstBody.node as! SKSpriteNode, monster: secondBody.node as! SKSpriteNode)
+            monsterKilled += 1
+            scoreLabel.text = "Score: \(monsterKilled)"
+            if (monsterKilled >= 10) {
+                scoreLabel.position = CGPoint(x: scoreLabel.frame.width/2, y: size.height - scoreLabel.frame.height)
+            }
+            
         }
         
     }
